@@ -596,6 +596,19 @@ def series_participants_set(mtg_id: int):
         return jsonify({"error": {"code": "VALIDATION_ERROR", "message": str(error)}}), 400
 
 
+@meetings_bp.post("/series/<int:mtg_id>/participants/replace")
+@login_required
+def series_participants_replace(mtg_id: int):
+    payload = request.get_json(silent=True) or {}
+    participants = payload.get("participants") or []
+    if not _is_admin_or_series_creator(mtg_id):
+        return jsonify({"error": {"code": "FORBIDDEN", "message": "Only the series creator or admins can edit series participants"}}), 403
+    try:
+        return jsonify({"data": set_series_participants(mtg_id, participants, _actor_id())})
+    except ValueError as error:
+        return jsonify({"error": {"code": "VALIDATION_ERROR", "message": str(error)}}), 400
+
+
 @meetings_bp.post("/series/<int:mtg_id>/participants")
 @login_required
 def series_participant_add(mtg_id: int):

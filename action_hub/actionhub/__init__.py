@@ -65,6 +65,9 @@ def create_app() -> Flask:
             response.cache_control.max_age = 86_400  # 1 day
         elif path.startswith("/api/"):
             response.cache_control.no_store = True
+        elif response.mimetype == "text/html" and not path.startswith("/assets/"):
+            response.cache_control.no_store = True
+            response.cache_control.max_age = 0
         # Security headers (spec §17)
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
