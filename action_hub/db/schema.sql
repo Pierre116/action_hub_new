@@ -62,9 +62,12 @@ CREATE TABLE IF NOT EXISTS t_workflow_step_field_value (
     wsf_step_key TEXT NOT NULL,
     wsf_field_code TEXT NOT NULL,
     wsf_value TEXT,
+    wsi_instance_id INTEGER,
+    wsi_step_key TEXT,
     wsf_filled_by INTEGER,
     wsf_filled_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (wsf_instance_id) REFERENCES t_workflow_instance(wfi_id),
+    FOREIGN KEY (wsi_instance_id) REFERENCES t_workflow_instance(wfi_id),
     FOREIGN KEY (wsf_filled_by) REFERENCES t_user(usr_id),
     UNIQUE (wsf_instance_id, wsf_step_key, wsf_field_code)
 );
