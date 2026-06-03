@@ -1,0 +1,85 @@
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+.Python
+*.egg-info/
+*.egg
+.eggs/
+dist/
+build/
+*.spec.bak
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+htmlcov/
+.coverage
+coverage.xml
+
+# ── Virtual environments ───────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+
+# ── Flask / ActionHub runtime ─────────────────────────────────────────────────
+action_hub/flask_session/
+
+# ── PyInstaller output ─────────────────────────────────────────────────────────
+action_hub/dist/
+action_hub/build/
+
+# ── Environment / secrets ─────────────────────────────────────────────────────
+.env
+*.env
+.env.*
+!.env.example
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Editors ───────────────────────────────────────────────────────────────────
+.vscode/settings.json
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── Excel source files (not versioned) ───────────────────────────────────────
+excel/
+
+# ── JavaScript / Node / Frontend ─────────────────────────────────────────────
+node_modules/
+action_hub/frontend/dist/
+action_hub/static/dist/
+action_hub/static/assets/
+.npm/
+.yarn/
+yarn.lock
+package-lock.json
+*.tsbuildinfo
+.eslintcache
+.vite/
+vite.config.ts.timestamp-*
+
+# ── Database files (never commit live data) ───────────────────────────────────
+*.db
+*.db-shm
+*.db-wal
+*.db-journal
+
+# ── Seed exports (may contain live user data) ─────────────────────────────────
+action_hub/db/seed_current.sql
+
+# ── Logs & temp ───────────────────────────────────────────────────────────────
+logs/
+*.log
+*.tmp
+pip_output.txt
+gen_output.txt

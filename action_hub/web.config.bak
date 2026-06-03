@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  IIS web.config for ActionHub
+  Requires: IIS URL Rewrite 2.x + Application Request Routing (ARR) 3.x
+
+  This config forwards all requests to the Waitress/Flask backend running
+  on http://localhost:5000  (ActionHub's wsgi.py).
+
+  Deploy steps:
+    1. Install ARR 3.x from https://www.iis.net/downloads/microsoft/application-request-routing
+    2. In IIS Manager -> Server node -> Application Request Routing Cache -> Server Proxy Settings
+       -> Enable proxy (check "Enable proxy")
+    3. Create an IIS site pointing to this folder (or any physical path)
+    4. Place this web.config in that site's root folder
+    5. Start ActionHub (see start_service.bat next to this file)
+-->
+<configuration>
+  <system.webServer>
+
+    <rewrite>
+      <rules>
+        <!-- Forward everything to the Python/Waitress backend -->
+        <rule name="ActionHub Proxy" stopProcessing="true">
+          <match url="(.*)" />
+          <conditions>
+            <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
+          </conditions>
+          <action type="Rewrite" url="http://localhost:5000/{R:1}" />
+        </rule>
+      </rules>
+    </rewrite>
+
+    <!-- Disable IIS static file handler so all requests go to the proxy -->
+    <handlers>
+      <clear />
+      <add name="StaticFile" path="*" verb="*" modules="StaticFileModule,DefaultDocumentModule,DirectoryListingModule" resourceType="Either" requireAccess="Read" />
+    </handlers>
+
+    <!-- Required for proxy to work with ARR -->
+    <httpProtocol>
+      <customHeaders>
+        <remove name="X-Powered-By" />
+      </customHeaders>
+    </httpProtocol>
+
+  </system.webServer>
+</configuration>

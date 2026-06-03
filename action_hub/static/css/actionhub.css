@@ -1,0 +1,443 @@
+/* ═══════════════════════════════════════════════════════════════════
+   ActionHub Theme — Corporate Brand Alignment
+   Generic color palette for professional corporate use:
+     Navy Blue:     #003382  (primary — buttons, links, navbar)
+     Orange:        #E64C00  (accent — CTAs, highlights, accent line)
+     Dark Text:     #222222  (headings, body)
+     Medium Grey:   #666666  (secondary text)
+     Light Grey:    #888888  (muted text, icons)
+     Light BG:      #F2F2F6  (page background)
+     Border:        #E0E0E0  (card borders, dividers)
+     Card BG:       #FFFFFF
+   Font:            "Montserrat", system-ui (body)
+                    "Noto Sans SC", serif (Chinese fallback)
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+    /* Brand Colors */
+    --brand-dark:    #222222;
+    --brand-orange:  #E64C00;
+    --brand-blue:    #003382;
+    --brand-light:   #F2F2F6;
+    --brand-text:    #222222;
+    --brand-muted:   #666666;
+    --brand-border:  #E0E0E0;
+    --brand-card:    #FFFFFF;
+    
+    /* Bootstrap 5 Theme Variables Override */
+    --bs-body-bg: var(--brand-light);
+    --bs-body-color: var(--brand-text);
+    --bs-primary: var(--brand-blue);
+    --bs-primary-rgb: 0, 51, 130;
+    --bs-danger: var(--brand-orange);
+    --bs-danger-rgb: 230, 76, 0;
+    --bs-border-color: var(--brand-border);
+    --bs-card-bg: var(--brand-card);
+    --bs-card-border-color: var(--brand-border);
+    --navbar-bg: var(--brand-light);
+    --table-header-bg: var(--brand-light);
+    --table-hover-bg: rgba(0, 51, 130, 0.04);
+    --card-header-bg: #FAFAFA;
+    --footer-bg: var(--brand-light);
+}
+
+:root[data-theme="dark"] {
+    --brand-dark:    #F3F4F6;
+    --brand-orange:  #FF8A3D;
+    --brand-blue:    #78A9FF;
+    --brand-light:   #0F172A;
+    --brand-text:    #E5E7EB;
+    --brand-muted:   #9CA3AF;
+    --brand-border:  #334155;
+    --brand-card:    #111827;
+
+    --bs-body-bg: var(--brand-light);
+    --bs-body-color: var(--brand-text);
+    --bs-primary: var(--brand-blue);
+    --bs-primary-rgb: 120, 169, 255;
+    --bs-border-color: var(--brand-border);
+    --bs-card-bg: var(--brand-card);
+    --bs-card-border-color: var(--brand-border);
+
+    --navbar-bg: #111827;
+    --table-header-bg: #1F2937;
+    --table-hover-bg: rgba(120, 169, 255, 0.08);
+    --card-header-bg: #1F2937;
+    --footer-bg: #111827;
+}
+
+/* ── Global ─────────────────────────────────────────────────────── */
+body {
+    background-color: var(--brand-light);
+    color: var(--brand-text);
+    font-family: "Montserrat", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Chinese font override */
+:lang(zh) body, :lang(zh) {
+    font-family: "Noto Sans SC", "Montserrat", system-ui, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+    font-weight: 600;
+    color: var(--brand-dark);
+    letter-spacing: -0.01em;
+}
+
+a { color: var(--brand-blue); }
+a:hover { color: #002266; }
+
+/* ── Navbar (brand dark charcoal) ───────────────────────────────── */
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    background-color: var(--navbar-bg) !important;
+    border-bottom: 3px solid var(--brand-orange);
+    font-size: 0.875rem;
+    letter-spacing: 0.01em;
+}
+.navbar .navbar-brand {
+    color: var(--brand-blue) !important;
+    font-weight: 700;
+}
+.navbar .nav-link {
+    color: var(--brand-dark) !important;
+}
+.navbar .nav-link:hover,
+.navbar .nav-link.active {
+    color: var(--brand-blue) !important;
+}
+.navbar .dropdown-menu {
+    z-index: 1035;
+    border: 1px solid var(--brand-border);
+    box-shadow: 0 4px 16px rgba(0,0,0,.10);
+    border-radius: 0.375rem;
+}
+.navbar-brand {
+    font-weight: 700;
+    letter-spacing: 0.03em;
+}
+
+/* ── Cards (clean, subtle shadow) ───────────────────────────────── */
+.card {
+    border: 1px solid var(--brand-border);
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,.04);
+    transition: box-shadow 0.15s ease;
+}
+.card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+.card-header {
+    background-color: var(--card-header-bg);
+    border-bottom: 1px solid var(--brand-border);
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+/* ── Tables ──────────────────────────────────────────────────────── */
+.table {
+    font-size: 0.8125rem;
+}
+.table > thead {
+    background-color: var(--table-header-bg);
+}
+.table-hover tbody tr:hover {
+    background-color: var(--table-hover-bg);
+}
+.table thead th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    color: var(--brand-muted);
+    border-bottom-width: 2px;
+}
+
+/* ── Badges (aligned with brand palette) ─────────────────────────  */
+.badge.text-bg-primary { background-color: var(--brand-blue) !important; }
+.badge.text-bg-danger  { background-color: var(--brand-orange) !important; }
+
+/* ── Buttons ─────────────────────────────────────────────────────── */
+.btn-primary {
+    background-color: var(--brand-blue);
+    border-color: var(--brand-blue);
+}
+.btn-primary:hover, .btn-primary:focus {
+    background-color: #002266;
+    border-color: #002266;
+}
+.btn-outline-primary {
+    color: var(--brand-blue);
+    border-color: var(--brand-blue);
+}
+.btn-outline-primary:hover {
+    background-color: var(--brand-blue);
+    color: #fff;
+}
+.btn-danger, .btn-outline-danger:hover {
+    background-color: var(--brand-orange);
+    border-color: var(--brand-orange);
+}
+
+/* ── Status chips ────────────────────────────────────────────────── */.status-open { background: #E8EFF5; color: #003382; }
+.status-in-progress { background: #FFF3E0; color: #E64C00; }
+.status-on-hold { background: #FFF8E1; color: #F9A825; }
+.status-done { background: #E8F5E9; color: #2E7D32; }
+.status-cancelled { background: #F5F5F5; color: #9E9E9E; }
+
+/* ── Forms ────────────────────────────────────────────────────────── */
+.form-control:focus, .form-select:focus {
+    border-color: var(--brand-blue);
+    box-shadow: 0 0 0 0.2rem rgba(0, 51, 130, .18);
+}
+
+/* ── Accordion (spec page) ───────────────────────────────────────── */
+.accordion-button:not(.collapsed) {
+    background-color: rgba(0, 51, 130, .06);
+    color: var(--brand-dark);
+}
+.accordion-button:focus {
+    box-shadow: 0 0 0 0.15rem rgba(0, 51, 130, .2);
+}
+
+/* ── Modals ─────────────────────────────────────────────────────── */
+.modal-header {
+    background-color: var(--brand-light);
+    border-bottom-color: var(--brand-border);
+}
+.modal-footer {
+    border-top-color: var(--brand-border);
+}
+
+/* ── Pagination ──────────────────────────────────────────────────── */
+.page-link {
+    color: var(--brand-blue);
+}
+.page-link:hover {
+    color: var(--brand-dark);
+    background-color: var(--brand-light);
+}
+.page-item.active .page-link {
+    background-color: var(--brand-blue);
+    border-color: var(--brand-blue);
+}
+
+/* ── Alert info (brand blue tint) ────────────────────────────────── */
+.alert-info {
+    background-color: #E8EFF8;
+    border-color: #B3C8E0;
+    color: #002266;
+}
+
+/* ── PILOT badge ─────────────────────────────────────────────────── */
+/* Note: brand-orange can be customized per deployment */
+.navbar .badge.bg-warning {
+    background-color: var(--brand-orange) !important;
+    color: #fff !important;
+    font-weight: 600;
+}
+.navbar-toggler {
+    border-color: var(--brand-border);
+}
+
+footer {
+    background-color: var(--footer-bg) !important;
+}
+
+:root[data-theme="dark"] .dropdown-menu,
+:root[data-theme="dark"] .modal-content,
+:root[data-theme="dark"] .list-group-item,
+:root[data-theme="dark"] .table,
+:root[data-theme="dark"] .form-control,
+:root[data-theme="dark"] .form-select,
+:root[data-theme="dark"] .btn-outline-secondary {
+    background-color: #111827;
+    color: var(--brand-text);
+    border-color: var(--brand-border);
+}
+
+:root[data-theme="dark"] .dropdown-item,
+:root[data-theme="dark"] .nav-link,
+:root[data-theme="dark"] .navbar .nav-link,
+:root[data-theme="dark"] .navbar .navbar-brand,
+:root[data-theme="dark"] .card,
+:root[data-theme="dark"] .card-header,
+:root[data-theme="dark"] .table thead th,
+:root[data-theme="dark"] .table td,
+:root[data-theme="dark"] .table th {
+    color: var(--brand-text) !important;
+}
+
+:root[data-theme="dark"] .text-muted {
+    color: var(--brand-muted) !important;
+}
+
+/* ── Notification bell ───────────────────────────────────────────── */
+#notif-badge {
+    font-size: 0.625rem;
+    min-width: 1.1em;
+    padding: 2px 4px;
+}
+
+/* ── Scrollbar (subtle) ──────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+.action-form-card {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.action-form-section {
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    background: var(--bs-body-bg);
+}
+
+.action-form-sticky {
+    position: sticky;
+    top: 5.5rem;
+}
+
+.action-form-footer {
+    position: sticky;
+    bottom: 0;
+    background: var(--bs-card-bg, #fff);
+    border-top: 1px solid var(--bs-border-color);
+    z-index: 5;
+}
+
+.action-help-icon {
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.user-picker-list {
+    max-height: 180px;
+    overflow-y: auto;
+    background: var(--bs-body-bg);
+}
+
+.action-detail-page {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Workflow sidebar card */
+.wf-sidebar-card .card-body {
+    max-height: 360px;
+    overflow-y: auto;
+}
+/* Workflow step card (current step form) */
+.wf-step-card {
+    border-width: 2px;
+}
+
+/* Workflow step list (sidebar + instance view) */
+.wf-step-list .wf-step-future {
+    opacity: 0.5;
+}
+
+.wf-step-list .wf-step-active {
+    background: rgba(13, 110, 253, 0.04);
+    border-radius: 4px;
+    margin: 0 -0.5rem;
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+}
+
+.wf-step-list .sla-countdown {
+    font-size: 0.65rem;
+}
+
+.action-detail-main {
+    min-height: 180px;
+}
+
+.action-detail-scroll-sm {
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.action-detail-scroll-lg {
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.action-detail-side .card {
+    border-color: var(--bs-border-color);
+}
+
+@media (max-width: 991.98px) {
+    .action-form-sticky {
+        position: static;
+    }
+
+    .action-form-card .card-body,
+    .action-detail-page .card-body {
+        padding: 0.85rem;
+    }
+
+    .action-form-card .card-header,
+    .action-detail-page .card-header {
+        padding: 0.6rem 0.85rem;
+    }
+
+    .action-form-card .card-footer,
+    .action-detail-page .card-footer {
+        padding: 0.6rem 0.85rem;
+    }
+
+    .action-form-section {
+        padding: 0.85rem;
+    }
+
+    .action-detail-page .row,
+    .action-form-card .row {
+        --bs-gutter-y: 0.85rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .action-form-card .card-body,
+    .action-detail-page .card-body {
+        padding: 0.7rem;
+    }
+
+    .action-form-card .card-header,
+    .action-detail-page .card-header,
+    .action-form-card .card-footer,
+    .action-detail-page .card-footer {
+        padding: 0.5rem 0.7rem;
+    }
+
+    .action-form-section {
+        padding: 0.7rem;
+        border-radius: 0.4rem;
+    }
+
+    .action-detail-scroll-sm {
+        max-height: 180px;
+    }
+
+    .action-detail-scroll-lg {
+        max-height: 240px;
+    }
+
+    .action-form-card .mt-3,
+    .action-detail-page .mt-3,
+    .action-form-card .mt-4,
+    .action-detail-page .mt-4 {
+        margin-top: 0.75rem !important;
+    }
+}

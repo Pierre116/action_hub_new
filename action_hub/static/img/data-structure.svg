@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 520" font-family="Segoe UI, Arial, sans-serif" font-size="13">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#6c757d"/></marker>
+    <style>
+      .box { rx: 8; ry: 8; stroke-width: 1.5; }
+      .label { text-anchor: middle; font-weight: 600; }
+      .edge { stroke: #6c757d; stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
+      .edge-text { fill: #495057; font-size: 11px; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <!-- TEAM -->
+  <rect class="box" x="30" y="60" width="160" height="44" fill="#6c757d" stroke="#6c757d"/>
+  <text class="label" x="110" y="87" fill="#fff">🏢 Team</text>
+
+  <!-- ROLE -->
+  <rect class="box" x="30" y="180" width="160" height="56" fill="#6c757d" stroke="#6c757d"/>
+  <text class="label" x="110" y="203" fill="#fff">👤 Role</text>
+  <text x="110" y="221" text-anchor="middle" fill="#ddd" font-size="10">(Admin / TeamLead / Member / ReadOnly)</text>
+
+  <!-- USR -->
+  <rect class="box" x="280" y="120" width="160" height="44" fill="#0dcaf0" stroke="#0dcaf0"/>
+  <text class="label" x="360" y="147" fill="#000">👤 User</text>
+
+  <!-- UTM -->
+  <rect class="box" x="280" y="20" width="160" height="44" fill="#6c757d" stroke="#6c757d"/>
+  <text class="label" x="360" y="47" fill="#fff">🔗 User-Team</text>
+
+  <!-- TOP -->
+  <rect class="box" x="540" y="20" width="160" height="44" fill="#0d6efd" stroke="#0d6efd"/>
+  <text class="label" x="620" y="47" fill="#fff">🏷 Topic</text>
+
+  <!-- MTG -->
+  <rect class="box" x="540" y="120" width="160" height="44" fill="#198754" stroke="#198754"/>
+  <text class="label" x="620" y="147" fill="#fff">📅 Meeting</text>
+
+  <!-- MEM -->
+  <rect class="box" x="540" y="220" width="160" height="56" fill="#198754" stroke="#198754"/>
+  <text class="label" x="620" y="245" fill="#fff">📝 Meeting Memo</text>
+  <text x="620" y="261" text-anchor="middle" fill="#ddd" font-size="10">(with date)</text>
+
+  <!-- ACT -->
+  <rect class="box" x="540" y="340" width="160" height="44" fill="#ffc107" stroke="#ffc107"/>
+  <text class="label" x="620" y="367" fill="#000">⚡ Action</text>
+
+  <!-- ASG -->
+  <rect class="box" x="540" y="440" width="160" height="44" fill="#6c757d" stroke="#6c757d"/>
+  <text class="label" x="620" y="467" fill="#fff">📋 Assignment</text>
+
+  <!-- Edges -->
+  <!-- USR -> UTM (belongs to 1..N) -->
+  <path class="edge" d="M 360 120 L 360 68"/>
+  <text class="edge-text" x="360" y="100">belongs to 1…N</text>
+
+  <!-- UTM -> TEAM -->
+  <path class="edge" d="M 280 42 L 194 42 L 194 72"/>
+  <text class="edge-text" x="237" y="36">links to</text>
+
+  <!-- USR -> ROLE -->
+  <path class="edge" d="M 280 148 L 194 148 L 194 180"/>
+  <text class="edge-text" x="237" y="162">has</text>
+
+  <!-- TOP -> MTG (groups) -->
+  <path class="edge" d="M 620 64 L 620 116"/>
+  <text class="edge-text" x="645" y="93">groups</text>
+
+  <!-- TOP -> ACT (groups) -->
+  <path class="edge" d="M 700 52 L 760 52 L 760 358 L 704 358"/>
+  <text class="edge-text" x="785" y="200">groups</text>
+
+  <!-- MTG -> MEM (contains) -->
+  <path class="edge" d="M 620 164 L 620 216"/>
+  <text class="edge-text" x="645" y="195">contains</text>
+
+  <!-- MTG -> ACT (raises) -->
+  <path class="edge" d="M 540 152 L 500 152 L 500 358 L 536 358"/>
+  <text class="edge-text" x="486" y="260">raises</text>
+
+  <!-- ACT -> ASG (assigned via) -->
+  <path class="edge" d="M 620 384 L 620 436"/>
+  <text class="edge-text" x="645" y="415">assigned via</text>
+
+  <!-- ASG -> USR (to) -->
+  <path class="edge" d="M 540 462 L 400 462 L 400 168"/>
+  <text class="edge-text" x="470" y="476">to</text>
+</svg>

@@ -1,0 +1,18 @@
+Flask==3.1.*
+Flask-Cors==5.0.*
+cachelib==0.13.*
+bcrypt==4.2.*
+openpyxl==3.1.*
+waitress==3.0.*
+flask-compress==1.17
+PyJWT>=2.8
+
+# Dev / testing
+pytest>=8.0
+pytest-cov>=5.0
+
+# YAML handling
+PyYAML>=6.0
+
+# PDF generation
+reportlab>=4.0

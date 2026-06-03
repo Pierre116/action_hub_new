@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" font-family="Segoe UI, Arial, sans-serif" font-size="13">
+  <defs>
+    <marker id="arr" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#6c757d"/></marker>
+    <style>
+      .state { rx: 22; ry: 22; stroke-width: 1.5; }
+      .slbl { text-anchor: middle; font-weight: 600; fill: #fff; }
+      .tr { stroke: #6c757d; stroke-width: 1.5; fill: none; marker-end: url(#arr); }
+      .tl { fill: #495057; font-size: 11px; text-anchor: middle; font-style: italic; }
+      .dot { fill: #212529; }
+    </style>
+  </defs>
+
+  <!-- Start dot -->
+  <circle class="dot" cx="40" cy="100" r="8"/>
+
+  <!-- Open -->
+  <rect class="state" x="90" y="78" width="120" height="44" fill="#0d6efd" stroke="#0a58ca"/>
+  <text class="slbl" x="150" y="105">Open</text>
+
+  <!-- In Progress -->
+  <rect class="state" x="270" y="78" width="140" height="44" fill="#0d6efd" stroke="#0a58ca"/>
+  <text class="slbl" x="340" y="105">In Progress</text>
+
+  <!-- On Hold -->
+  <rect class="state" x="270" y="198" width="140" height="44" fill="#ffc107" stroke="#e0a800"/>
+  <text x="340" y="225" text-anchor="middle" font-weight="600" fill="#000">On Hold</text>
+
+  <!-- Done -->
+  <rect class="state" x="490" y="78" width="120" height="44" fill="#198754" stroke="#146c43"/>
+  <text class="slbl" x="550" y="105">Done</text>
+
+  <!-- Cancelled -->
+  <rect class="state" x="90" y="278" width="120" height="44" fill="#dc3545" stroke="#b02a37"/>
+  <text class="slbl" x="150" y="305">Cancelled</text>
+
+  <!-- End dots -->
+  <circle class="dot" cx="600" cy="170" r="8"/>
+  <circle cx="600" cy="170" r="12" fill="none" stroke="#212529" stroke-width="2"/>
+
+  <!-- Edges -->
+  <!-- Start -> Open -->
+  <path class="tr" d="M 50 100 L 86 100"/>
+  <text class="tl" x="68" y="92">Created</text>
+
+  <!-- Open -> In Progress -->
+  <path class="tr" d="M 210 100 L 266 100"/>
+  <text class="tl" x="238" y="92">Work started</text>
+
+  <!-- Open -> Cancelled -->
+  <path class="tr" d="M 150 122 L 150 274"/>
+  <text class="tl" x="133" y="200">Dropped</text>
+
+  <!-- In Progress -> On Hold -->
+  <path class="tr" d="M 340 122 L 340 194"/>
+  <text class="tl" x="363" y="162">Blocked</text>
+
+  <!-- In Progress -> Done -->
+  <path class="tr" d="M 410 100 L 486 100"/>
+  <text class="tl" x="448" y="92">Completed</text>
+
+  <!-- On Hold -> In Progress -->
+  <path class="tr" d="M 310 198 L 310 126"/>
+  <text class="tl" x="290" y="162">Resumed</text>
+
+  <!-- Done -> End -->
+  <path class="tr" d="M 550 122 L 550 160 L 584 168"/>
+
+  <!-- Cancelled -> End -->
+  <path class="tr" d="M 210 300 L 580 300 L 590 186"/>
+</svg>
