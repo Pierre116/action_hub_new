@@ -70,6 +70,7 @@ vite.config.ts.timestamp-*
 
 # ── Database files (never commit live data) ───────────────────────────────────
 *.db
+!action_hub/db/actionhub.db
 *.db-shm
 *.db-wal
 *.db-journal
