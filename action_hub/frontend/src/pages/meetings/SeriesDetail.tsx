@@ -115,23 +115,15 @@ export default function SeriesDetail() {
 
   const updateParticipantsMutation = useMutation({
     mutationFn: async (participants: Array<{ user_id: number; kind: string }>) => {
-      try {
-        return await api.put(`/api/meetings/series/${seriesId}/participants`, { participants })
-      } catch (error: any) {
-        if (error?.response?.status !== 405) {
-          throw error
-        }
-
-        const desiredParticipants = [...participants]
-        const actorUserId = Number(user?.id || 0)
-        if (actorUserId && !desiredParticipants.some((participant) => Number(participant.user_id) === actorUserId)) {
-          desiredParticipants.push({ user_id: actorUserId, kind: 'Compulsory' })
-        }
-
-        return api.post(`/api/meetings/series/${seriesId}/participants/replace`, {
-          participants: desiredParticipants,
-        })
+      const desiredParticipants = [...participants]
+      const actorUserId = Number(user?.id || 0)
+      if (actorUserId && !desiredParticipants.some((participant) => Number(participant.user_id) === actorUserId)) {
+        desiredParticipants.push({ user_id: actorUserId, kind: 'Compulsory' })
       }
+
+      return api.post(`/api/meetings/series/${seriesId}/participants/replace`, {
+        participants: desiredParticipants,
+      })
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['meeting-series', seriesId] })
