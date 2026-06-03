@@ -2,7 +2,7 @@
 import sqlite3
 from urllib.parse import quote
 
-from flask import Blueprint, Response, jsonify, request
+from flask import Blueprint, Response, jsonify, request, send_file
 
 from actionhub.meetings.memo_service import delete_memo, get_memo_blob, get_memos, upload_memo
 from actionhub.meetings.memo_text_service import (
@@ -11,6 +11,13 @@ from actionhub.meetings.memo_text_service import (
     list_text_memos,
     move_memo,
     update_text_memo,
+)
+from actionhub.meetings.minutes_attachment_service import (
+    delete_minutes_attachment,
+    get_minutes_attachment,
+    get_minutes_attachment_file_path,
+    list_minutes_attachments,
+    upload_minutes_attachment,
 )
 from actionhub.meetings.service import (
     _can_view_series,
@@ -284,6 +291,68 @@ def memo_delete(msm_id: int):
     if not _is_admin_or_creator(int(row["msm_instance_id"])):
         return jsonify({"error": {"code": "FORBIDDEN", "message": "Only the meeting creator or admins can manage memos"}}), 403
     delete_memo(msm_id)
+    return jsonify({"data": {"ok": True}})
+
+
+# ── Minutes attachments (local file storage) ─────────────────────────────────
+
+@meetings_bp.get("/<int:min_id>/minutes/attachments")
+@login_required
+def minutes_attachments_list(min_id: int):
+    if not _can_view_meeting_content(min_id):
+        return jsonify({"error": {"code": "NOT_FOUND", "message": "meeting not found"}}), 404
+    return jsonify({"data": list_minutes_attachments(min_id)})
+
+
+@meetings_bp.post("/<int:min_id>/minutes/attachments")
+@login_required
+def minutes_attachment_upload(min_id: int):
+    if not _is_admin_or_owner(min_id):
+        return jsonify({"error": {"code": "FORBIDDEN", "message": "Only meeting owners or admins can manage minutes attachments"}}), 403
+    uploaded_file = request.files.get("file")
+    if not uploaded_file:
+        return jsonify({"error": {"code": "VALIDATION_ERROR", "message": "file is required"}}), 400
+    try:
+        result = upload_minutes_attachment(
+            min_id,
+            uploaded_file.filename or "upload",
+            uploaded_file.read(),
+            uploaded_file.content_type,
+            _actor_id(),
+        )
+        return jsonify({"data": result}), 201
+    except ValueError as error:
+        return jsonify({"error": {"code": "VALIDATION_ERROR", "message": str(error)}}), 400
+
+
+@meetings_bp.get("/minutes/attachments/<int:attachment_id>/download")
+@login_required
+def minutes_attachment_download(attachment_id: int):
+    attachment = get_minutes_attachment(attachment_id)
+    if not attachment:
+        return jsonify({"error": {"code": "NOT_FOUND", "message": "attachment not found"}}), 404
+    if not _can_view_meeting_content(int(attachment["meeting_id"])):
+        return jsonify({"error": {"code": "NOT_FOUND", "message": "meeting not found"}}), 404
+    file_path = get_minutes_attachment_file_path(attachment_id)
+    if not file_path:
+        return jsonify({"error": {"code": "NOT_FOUND", "message": "file not found"}}), 404
+    return send_file(
+        file_path,
+        mimetype=attachment.get("mime_type") or "application/octet-stream",
+        as_attachment=True,
+        download_name=attachment["filename"],
+    )
+
+
+@meetings_bp.post("/minutes/attachments/<int:attachment_id>/delete")
+@login_required
+def minutes_attachment_delete(attachment_id: int):
+    attachment = get_minutes_attachment(attachment_id)
+    if not attachment:
+        return jsonify({"data": {"ok": True}})
+    if not _is_admin_or_owner(int(attachment["meeting_id"])):
+        return jsonify({"error": {"code": "FORBIDDEN", "message": "Only meeting owners or admins can manage minutes attachments"}}), 403
+    delete_minutes_attachment(attachment_id, _actor_id())
     return jsonify({"data": {"ok": True}})
 
 

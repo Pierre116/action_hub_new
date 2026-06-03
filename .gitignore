@@ -28,6 +28,7 @@ ENV/
 
 # ── Flask / ActionHub runtime ─────────────────────────────────────────────────
 action_hub/flask_session/
+action_hub/attachments/
 
 # ── PyInstaller output ─────────────────────────────────────────────────────────
 action_hub/dist/

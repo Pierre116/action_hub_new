@@ -1,7 +1,11 @@
 """Tests for meeting instance endpoints."""
 import io
+import shutil
+import tempfile
 import unittest
+from pathlib import Path
 
+from actionhub.auth import jwt_service
 from tests.conftest import AppTestCase
 
 
@@ -188,6 +192,97 @@ class MeetingMemoTests(AppTestCase):
         self.assertTrue(resp.get_json()["data"]["ok"])
         memos_after = self.client.get(f"/api/meetings/{self.min_id}/memos").get_json()["data"]
         self.assertEqual(memos_after, [])
+
+
+class MeetingMinutesAttachmentTests(AppTestCase):
+    def setUp(self):
+        super().setUp()
+        self.storage_dir = Path(tempfile.mkdtemp(prefix="actionhub_minutes_"))
+        import actionhub.meetings.minutes_attachment_service as attachment_service
+
+        self.attachment_service = attachment_service
+        self.original_storage_dir = attachment_service.STORAGE_DIR
+        attachment_service.STORAGE_DIR = self.storage_dir
+        self.login_admin()
+        series_resp = self.client.post(
+            "/api/meetings/series",
+            json={"title": "Series Minutes", "topic_id": 1, "description": "MoM uploads"},
+        )
+        self.series_id = series_resp.get_json()["data"]["mtg_id"]
+        occurrence_resp = self.client.post(
+            f"/api/meetings/series/{self.series_id}/occurrences",
+            json={"date": "2026-03-01"},
+        )
+        self.min_id = occurrence_resp.get_json()["data"]["min_id"]
+
+    def tearDown(self):
+        self.attachment_service.STORAGE_DIR = self.original_storage_dir
+        shutil.rmtree(self.storage_dir, ignore_errors=True)
+        super().tearDown()
+
+    def _upload_minutes_attachment(self, filename="minutes.docx", content=b"meeting minutes"):
+        return self.client.post(
+            f"/api/meetings/{self.min_id}/minutes/attachments",
+            data={"file": (io.BytesIO(content), filename)},
+            content_type="multipart/form-data",
+        )
+
+    def test_minutes_attachment_upload_list_download_and_delete(self):
+        upload_resp = self._upload_minutes_attachment()
+        self.assertEqual(upload_resp.status_code, 201)
+        attachment = upload_resp.get_json()["data"]
+        self.assertIn("Administrator", attachment["filename"])
+        self.assertIn("Series_Minutes", attachment["filename"])
+        self.assertIn(f"meeting_{self.min_id}", attachment["filename"])
+
+        list_resp = self.client.get(f"/api/meetings/{self.min_id}/minutes/attachments")
+        self.assertEqual(list_resp.status_code, 200)
+        self.assertEqual(len(list_resp.get_json()["data"]), 1)
+
+        download_resp = self.client.get(f"/api/meetings/minutes/attachments/{attachment['id']}/download")
+        self.assertEqual(download_resp.status_code, 200)
+        self.assertEqual(download_resp.data, b"meeting minutes")
+
+        delete_resp = self.client.post(f"/api/meetings/minutes/attachments/{attachment['id']}/delete")
+        self.assertEqual(delete_resp.status_code, 200)
+        list_after = self.client.get(f"/api/meetings/{self.min_id}/minutes/attachments").get_json()["data"]
+        self.assertEqual(list_after, [])
+
+    def test_minutes_attachment_limit_is_three_files(self):
+        for index in range(3):
+            resp = self._upload_minutes_attachment(filename=f"minutes-{index}.pdf", content=b"x")
+            self.assertEqual(resp.status_code, 201)
+
+        overflow_resp = self._upload_minutes_attachment(filename="minutes-4.pdf", content=b"x")
+        self.assertEqual(overflow_resp.status_code, 400)
+        self.assertIn("maximum 3", overflow_resp.get_json()["error"]["message"])
+
+    def test_minutes_attachment_size_limit_is_five_mb(self):
+        too_large = b"x" * (5 * 1024 * 1024 + 1)
+        resp = self._upload_minutes_attachment(filename="too-large.pdf", content=too_large)
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn("5 MB", resp.get_json()["error"]["message"])
+
+    def test_minutes_attachment_upload_requires_owner(self):
+        db = self.app.config["db_conn"]
+        db.execute(
+            """
+            INSERT INTO t_user (usr_username, usr_pwd_hash, usr_display_name, usr_email, usr_role)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            ("nonowner", "hash", "Non Owner", "nonowner@example.com", "Member"),
+        )
+        db.commit()
+        user_id = db.execute("SELECT usr_id FROM t_user WHERE usr_username = ?", ("nonowner",)).fetchone()["usr_id"]
+        token = jwt_service.generate_access_token(
+            {"id": user_id, "username": "nonowner", "role": "Member"},
+            self.app.config["JWT_SECRET_KEY"],
+            900,
+        )
+        self.client.environ_base["HTTP_AUTHORIZATION"] = f"Bearer {token}"
+
+        resp = self._upload_minutes_attachment()
+        self.assertEqual(resp.status_code, 403)
 
 
 # ── text-memo extras (from wave3) ────────────────────────────────────────────

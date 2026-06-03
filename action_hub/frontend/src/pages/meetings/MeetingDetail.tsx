@@ -151,6 +151,25 @@ interface TextMemo {
   mmm_created_at: string
 }
 
+interface MeetingMinutesAttachment {
+  id: number
+  meeting_id: number
+  original_filename: string
+  filename: string
+  mime_type?: string | null
+  size_bytes: number
+  uploaded_by: number
+  uploaded_by_name?: string | null
+  uploaded_at: string
+}
+
+function formatFileSize(sizeBytes: number): string {
+  if (sizeBytes >= 1024 * 1024) {
+    return `${(sizeBytes / (1024 * 1024)).toFixed(1)} MB`
+  }
+  return `${Math.max(1, Math.round(sizeBytes / 1024))} KB`
+}
+
 export default function MeetingDetail() {
   const { id } = useParams<{ id: string }>()
   const meetingId = parseInt(id || '0', 10)
@@ -164,6 +183,9 @@ export default function MeetingDetail() {
 
   /* — PDF export — */
   const [pdfError, setPdfError] = useState<string | null>(null)
+  const [minutesAttachmentError, setMinutesAttachmentError] = useState<string | null>(null)
+  const [selectedMinutesAttachment, setSelectedMinutesAttachment] = useState<File | null>(null)
+  const minutesAttachmentInputRef = useRef<HTMLInputElement | null>(null)
 
   /* — inline forms visibility — */
   const [showAddDecision, setShowAddDecision] = useState(false)
@@ -294,6 +316,15 @@ export default function MeetingDetail() {
     queryKey: ['meeting', meetingId, 'text-memos'],
     queryFn: async () => {
       const response = await api.get(`/api/meetings/${meetingId}/text-memos`)
+      return response.data.data || []
+    },
+    enabled: !!meetingId && !!meeting,
+  })
+
+  const { data: minutesAttachments = [] } = useQuery<MeetingMinutesAttachment[]>({
+    queryKey: ['meeting', meetingId, 'minutes-attachments'],
+    queryFn: async () => {
+      const response = await api.get(`/api/meetings/${meetingId}/minutes/attachments`)
       return response.data.data || []
     },
     enabled: !!meetingId && !!meeting,
@@ -445,6 +476,38 @@ export default function MeetingDetail() {
     },
   })
 
+  const uploadMinutesAttachmentMutation = useMutation({
+    mutationFn: (file: File) => {
+      const formData = new FormData()
+      formData.append('file', file)
+      return api.post(`/api/meetings/${meetingId}/minutes/attachments`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['meeting', meetingId, 'minutes-attachments'] })
+      setSelectedMinutesAttachment(null)
+      setMinutesAttachmentError(null)
+      if (minutesAttachmentInputRef.current) {
+        minutesAttachmentInputRef.current.value = ''
+      }
+    },
+    onError: (error: any) => {
+      setMinutesAttachmentError(error?.response?.data?.error?.message || t('common.error', 'Error'))
+    },
+  })
+
+  const deleteMinutesAttachmentMutation = useMutation({
+    mutationFn: (attachmentId: number) => api.post(`/api/meetings/minutes/attachments/${attachmentId}/delete`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['meeting', meetingId, 'minutes-attachments'] })
+      setMinutesAttachmentError(null)
+    },
+    onError: (error: any) => {
+      setMinutesAttachmentError(error?.response?.data?.error?.message || t('common.error', 'Error'))
+    },
+  })
+
   const meetingEditMutation = useMutation({
     mutationFn: (payload: {
       title?: string; category_id?: number | null; secondary_category_id?: number | null
@@ -477,6 +540,36 @@ export default function MeetingDetail() {
       window.URL.revokeObjectURL(url)
     } catch (err: any) {
       setPdfError(err?.response?.data?.error?.message || t('common.error', 'Failed to generate PDF'))
+    }
+  }
+
+  const handleUploadMinutesAttachment = () => {
+    setMinutesAttachmentError(null)
+    if (!selectedMinutesAttachment) return
+    uploadMinutesAttachmentMutation.mutate(selectedMinutesAttachment)
+  }
+
+  const handleDownloadMinutesAttachment = async (attachment: MeetingMinutesAttachment) => {
+    setMinutesAttachmentError(null)
+    try {
+      const response = await api.get(`/api/meetings/minutes/attachments/${attachment.id}/download`, { responseType: 'blob' })
+      const blob = new Blob([response.data], { type: attachment.mime_type || 'application/octet-stream' })
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = attachment.filename
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.URL.revokeObjectURL(url)
+    } catch (error: any) {
+      setMinutesAttachmentError(error?.response?.data?.error?.message || t('common.error', 'Error'))
+    }
+  }
+
+  const handleDeleteMinutesAttachment = (attachmentId: number) => {
+    if (window.confirm(t('common.confirm_delete', 'Are you sure you want to delete?'))) {
+      deleteMinutesAttachmentMutation.mutate(attachmentId)
     }
   }
 
@@ -856,6 +949,91 @@ export default function MeetingDetail() {
           </Button>
         </div>
       </div>
+
+      {/* ── Minutes Attachments ── */}
+      <Card className="mb-3">
+        <Card.Header className="py-2 d-flex justify-content-between align-items-center">
+          <span>{t('meetings.minutesAttachments', 'Minutes attachments')}</span>
+          <Badge bg="secondary" pill>{minutesAttachments.length}/3</Badge>
+        </Card.Header>
+        <Card.Body className="py-2">
+          {meeting.is_owner && (
+            <Row className="g-2 align-items-center mb-2">
+              <Col md={7}>
+                <Form.Control
+                  ref={minutesAttachmentInputRef}
+                  type="file"
+                  accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
+                  disabled={minutesAttachments.length >= 3 || uploadMinutesAttachmentMutation.isPending}
+                  onChange={(event) => setSelectedMinutesAttachment(event.target.files?.[0] || null)}
+                />
+                <Form.Text className="text-muted">
+                  {t('meetings.minutesAttachmentPolicy', 'Up to 3 documents, 5 MB each.')}
+                </Form.Text>
+              </Col>
+              <Col md="auto">
+                <Button
+                  size="sm"
+                  variant="outline-primary"
+                  disabled={!selectedMinutesAttachment || minutesAttachments.length >= 3 || uploadMinutesAttachmentMutation.isPending}
+                  onClick={handleUploadMinutesAttachment}
+                >
+                  {uploadMinutesAttachmentMutation.isPending ? t('common.uploading', 'Uploading...') : t('common.upload', 'Upload')}
+                </Button>
+              </Col>
+            </Row>
+          )}
+          {minutesAttachmentError && (
+            <Alert variant="danger" dismissible className="mb-2 py-1 px-2 small" onClose={() => setMinutesAttachmentError(null)}>
+              {minutesAttachmentError}
+            </Alert>
+          )}
+          {minutesAttachments.length === 0 ? (
+            <p className="text-muted small mb-0">{t('meetings.noMinutesAttachments', 'No minutes attachments yet.')}</p>
+          ) : (
+            <Table size="sm" responsive hover className="mb-0">
+              <thead>
+                <tr>
+                  <th>{t('workflow.filename', 'Filename')}</th>
+                  <th>{t('workflow.size', 'Size')}</th>
+                  <th>{t('workflow.uploadedBy', 'Uploaded By')}</th>
+                  <th>{t('workflow.uploadedAt', 'Uploaded At')}</th>
+                  <th className="text-end">{t('common.actions', 'Actions')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {minutesAttachments.map((attachment) => (
+                  <tr key={attachment.id}>
+                    <td>
+                      <Button variant="link" size="sm" className="p-0 text-start" onClick={() => handleDownloadMinutesAttachment(attachment)}>
+                        {attachment.filename}
+                      </Button>
+                    </td>
+                    <td>{formatFileSize(attachment.size_bytes)}</td>
+                    <td>{attachment.uploaded_by_name || '-'}</td>
+                    <td>{formatTimestampNoSeconds(attachment.uploaded_at)}</td>
+                    <td className="text-end">
+                      <Button variant="outline-secondary" size="sm" className="me-1" onClick={() => handleDownloadMinutesAttachment(attachment)}>
+                        {t('common.download', 'Download')}
+                      </Button>
+                      {meeting.is_owner && (
+                        <Button
+                          variant="outline-danger"
+                          size="sm"
+                          disabled={deleteMinutesAttachmentMutation.isPending}
+                          onClick={() => handleDeleteMinutesAttachment(attachment.id)}
+                        >
+                          {t('common.delete', 'Delete')}
+                        </Button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          )}
+        </Card.Body>
+      </Card>
 
       {/* ── Memos Section ── */}
       <div className="mb-3">

@@ -379,6 +379,23 @@ CREATE TABLE IF NOT EXISTS t_meeting_summary (
     FOREIGN KEY (msm_uploader_id) REFERENCES t_user(usr_id)
 );
 
+CREATE TABLE IF NOT EXISTS t_meeting_minutes_attachment (
+    mma_id                INTEGER PRIMARY KEY AUTOINCREMENT,
+    mma_instance_id        INTEGER NOT NULL,
+    mma_original_filename  TEXT NOT NULL,
+    mma_display_filename   TEXT NOT NULL,
+    mma_storage_path       TEXT NOT NULL,
+    mma_mime_type          TEXT,
+    mma_size_bytes         INTEGER NOT NULL,
+    mma_uploaded_by        INTEGER NOT NULL,
+    mma_uploaded_at        TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    mma_deleted_at         TEXT,
+    mma_deleted_by         INTEGER,
+    FOREIGN KEY (mma_instance_id) REFERENCES t_meeting_instance(min_id) ON DELETE CASCADE,
+    FOREIGN KEY (mma_uploaded_by) REFERENCES t_user(usr_id),
+    FOREIGN KEY (mma_deleted_by) REFERENCES t_user(usr_id)
+);
+
 CREATE TABLE IF NOT EXISTS t_meeting_owner (
     mow_id          INTEGER PRIMARY KEY AUTOINCREMENT,
     mow_instance_id INTEGER NOT NULL,
@@ -531,6 +548,7 @@ CREATE INDEX IF NOT EXISTS idx_action_archived_created ON t_action(act_archived,
 CREATE INDEX IF NOT EXISTS idx_action_archived_status_deadline ON t_action(act_archived, act_status, act_deadline);
 CREATE INDEX IF NOT EXISTS idx_user_team_team ON t_user_team(utm_team_id);
 CREATE INDEX IF NOT EXISTS idx_action_secondary_topic ON t_action(act_secondary_topic_id) WHERE act_secondary_topic_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_meeting_minutes_attachment_instance ON t_meeting_minutes_attachment(mma_instance_id, mma_deleted_at);
 
 CREATE INDEX IF NOT EXISTS idx_meeting_secondary_category ON t_meeting_instance(min_secondary_category_id) WHERE min_secondary_category_id IS NOT NULL;
 
