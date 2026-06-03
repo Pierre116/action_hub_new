@@ -55,6 +55,20 @@ desktop.ini
 # ── Excel source files (not versioned) ───────────────────────────────────────
 excel/
 
+# ── Office / document files (local only, never synced) ───────────────────────
+*.pdf
+*.tif
+*.tiff
+*.doc
+*.docx
+*.xls
+*.xlsx
+*.xlsm
+*.xlsb
+*.ppt
+*.pptx
+*.odc
+
 # ── JavaScript / Node / Frontend ─────────────────────────────────────────────
 node_modules/
 action_hub/frontend/dist/
